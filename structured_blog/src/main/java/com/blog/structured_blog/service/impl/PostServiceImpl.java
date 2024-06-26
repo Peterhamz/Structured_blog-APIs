@@ -6,6 +6,7 @@ import com.blog.structured_blog.payload.PostDto;
 import com.blog.structured_blog.payload.PostResponse;
 import com.blog.structured_blog.repository.PostRepository;
 import com.blog.structured_blog.service.PostService;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,9 +20,11 @@ import java.util.stream.Collectors;
 public class PostServiceImpl implements PostService {
 
     private PostRepository postRepository;
+    private ModelMapper modelMapper;
 
-    public PostServiceImpl(PostRepository postRepository) {
+    public PostServiceImpl(PostRepository postRepository, ModelMapper modelMapper) {
         this.postRepository = postRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -89,21 +92,27 @@ public class PostServiceImpl implements PostService {
 
     // convert entity into DTOs...
     private PostDto mapToDto(Post post){
-        PostDto postDto = new PostDto();
+       PostDto postDto = modelMapper.map(post, PostDto.class);
 
-        postDto.setId(post.getId());
-        postDto.setDescription(post.getDescription());
-        postDto.setContent(post.getContent());
-        postDto.setTitle(post.getTitle());
+//        PostDto postDto = new PostDto();
+//        postDto.setId(post.getId());
+//        postDto.setDescription(post.getDescription());
+//        postDto.setContent(post.getContent());
+//        postDto.setTitle(post.getTitle());
+
         return postDto;
     }
 
     // convert DTOs into Entity
     private Post mapToEntity(PostDto postDto){
-        Post post = new Post();
-        post.setDescription(postDto.getDescription());
-        post.setContent(postDto.getContent());
-        post.setTitle(postDto.getTitle());
+       Post post = modelMapper.map(postDto, Post.class);
+//
+//        Post post = new Post();
+//        post.setDescription(postDto.getDescription());
+//        post.setContent(postDto.getContent());
+//        post.setTitle(postDto.getTitle());
+
+
         return post;
     }
 }
