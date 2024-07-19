@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/posts")
 public class PostController {
@@ -19,14 +21,12 @@ public class PostController {
     public PostController(PostService postService) {
         this.postService = postService;
     }
-
     // create blog post rest api
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<PostDto> createPost( @Valid @RequestBody PostDto postDto){
         return new ResponseEntity<>(postService.createPost(postDto), HttpStatus.CREATED);
     }
-
     // get all post rest api with pagination and sorting...
     @GetMapping
     public PostResponse getAllPost(@RequestParam(value = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
@@ -35,13 +35,11 @@ public class PostController {
                                    @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir){
         return postService.getAllPost(pageNo, pageSize,sortBy,sortDir);
     }
-
     // get post by id
     @GetMapping("/{id}")
     public ResponseEntity<PostDto> getPostById(@PathVariable(name = "id") Long id){
         return new ResponseEntity<>(postService.getPostById(id), HttpStatus.OK);
     }
-
     // update a post by id
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
@@ -49,7 +47,6 @@ public class PostController {
         PostDto postResponse = postService.updatePost(postDto, id);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
-
     // Delete post by ID
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
@@ -57,5 +54,10 @@ public class PostController {
         postService.deletePostById(id);
         return new ResponseEntity<>("Post Deleted Successfully", HttpStatus.OK);
     }
-
+    //Get post by category
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<List<PostDto>> getPostByCategory(@PathVariable("categoryId") long categoryId){
+        List<PostDto> postDtos = postService.getPostByCategoryId(categoryId);
+        return ResponseEntity.ok(postDtos);
+    }
 }

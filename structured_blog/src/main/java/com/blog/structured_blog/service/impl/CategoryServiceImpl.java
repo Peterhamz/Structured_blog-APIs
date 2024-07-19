@@ -1,11 +1,16 @@
 package com.blog.structured_blog.service.impl;
 
 import com.blog.structured_blog.entity.Category;
+import com.blog.structured_blog.exception.ResourceNotFoundException;
 import com.blog.structured_blog.payload.CategoryDto;
+import com.blog.structured_blog.payload.PostDto;
 import com.blog.structured_blog.repository.CategoryRepository;
 import com.blog.structured_blog.service.CategoryService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -17,11 +22,42 @@ public class CategoryServiceImpl implements CategoryService {
         this.categoryRepository = categoryRepository;
         this.modelMapper = modelMapper;
     }
-
     @Override
     public CategoryDto addCategory(CategoryDto categoryDto) {
       Category category = modelMapper.map(categoryDto, Category.class);
       Category savedCategory = categoryRepository.save(category);
         return modelMapper.map(savedCategory, CategoryDto.class);
     }
+    @Override
+    public CategoryDto getCategory(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(()-> new ResourceNotFoundException("Category", "id", categoryId));
+        return modelMapper.map(category, CategoryDto.class);
+    }
+    @Override
+    public List<CategoryDto> getAllCategory() {
+       List<Category> categories = categoryRepository.findAll();
+        return categories.stream().map((category -> modelMapper
+                .map(category, CategoryDto.class))).collect(Collectors.toList());
+    }
+    @Override
+    public CategoryDto updateCategory(CategoryDto categoryDto, Long categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(()-> new ResourceNotFoundException("Category", "id", categoryId));
+
+        category.setDescription(categoryDto.getDescription());
+        category.setName(categoryDto.getName());
+        category.setId(categoryDto.getId());
+
+        return modelMapper.map(categoryRepository.save(category), CategoryDto.class);
+    }
+
+    @Override
+    public void deleteCategory(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(()-> new ResourceNotFoundException("Category", "id", categoryId));
+        categoryRepository.delete(category);
+    }
+
+
 }

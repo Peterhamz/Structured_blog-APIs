@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/categories")
 public class CategoryController {
@@ -18,10 +20,30 @@ public class CategoryController {
     public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
     }
-
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<CategoryDto> addCategory(@RequestBody CategoryDto categoryDto){
         return new ResponseEntity<>(categoryService.addCategory(categoryDto), HttpStatus.CREATED);
+    }
+    @GetMapping("/{categoryId}")
+    public ResponseEntity<CategoryDto> getCategory(@PathVariable(name = "categoryId") Long categoryId){
+        return new ResponseEntity<>(categoryService.getCategory(categoryId), HttpStatus.OK);
+    }
+    @GetMapping()
+    public ResponseEntity<List<CategoryDto>> getAllCategory(){
+        return new ResponseEntity<>(categoryService.getAllCategory(),HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("{categoryId}")
+    public ResponseEntity<CategoryDto> updateCategory(@RequestBody CategoryDto categoryDto,
+                                                      @PathVariable(name = "categoryId")Long categoryId){
+        return ResponseEntity.ok(categoryService.updateCategory(categoryDto,categoryId));
+    }
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("{categoryId}")
+    public ResponseEntity<String> deleteCategory(@PathVariable("categoryId") Long categoryId){
+        categoryService.deleteCategory(categoryId);
+        return ResponseEntity.ok("Category Deleted Successfully");
     }
 }
