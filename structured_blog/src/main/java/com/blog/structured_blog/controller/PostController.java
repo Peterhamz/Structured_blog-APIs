@@ -4,6 +4,10 @@ import com.blog.structured_blog.payload.PostDto;
 import com.blog.structured_blog.payload.PostResponse;
 import com.blog.structured_blog.service.PostService;
 import com.blog.structured_blog.utils.AppConstants;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +18,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/posts")
+@Tag(
+        name = "REST API for Post resources"
+)
 public class PostController {
 
     private PostService postService;
@@ -21,6 +28,18 @@ public class PostController {
     public PostController(PostService postService) {
         this.postService = postService;
     }
+
+    @Operation(
+            summary = "Create Post REST API",
+            description = "Create Post Api is used to save Post into database"
+    )
+    @ApiResponse(
+            responseCode = "201",
+            description = "HTTP Status 201 created"
+    )
+    @SecurityRequirement(
+            name = "Bear Authentication"
+    )
     // create blog post rest api
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
@@ -40,6 +59,11 @@ public class PostController {
     public ResponseEntity<PostDto> getPostById(@PathVariable(name = "id") Long id){
         return new ResponseEntity<>(postService.getPostById(id), HttpStatus.OK);
     }
+
+
+    @SecurityRequirement(
+            name = "Bear Authentication"
+    )
     // update a post by id
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
@@ -47,6 +71,9 @@ public class PostController {
         PostDto postResponse = postService.updatePost(postDto, id);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
+    @SecurityRequirement(
+            name = "Bear Authentication"
+    )
     // Delete post by ID
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
